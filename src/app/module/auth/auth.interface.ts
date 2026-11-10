@@ -1,19 +1,23 @@
-import { Role } from "../../../../prisma/generated/prisma/browser"
+import type { Role } from "../../../../prisma/generated/prisma/browser";
 
 export interface ILoginUserPayload {
-    email: string
-    password: string
+	email: string;
+	password: string;
 }
 
 export interface IRegisterPatientPayload {
-    name: string
-    email: string
-    password: string
+	name: string;
+	email: string;
+	password: string;
 }
 
 export interface IRequestUser {
-    userId: string
-    email: string
-    name: string
-    role: Role
+	userId: string;
+	email: string;
+	name: string;
+	role: Role;
 }
+
+export interface IGoogleLoginPayload {
+  idToken: string;
+}	

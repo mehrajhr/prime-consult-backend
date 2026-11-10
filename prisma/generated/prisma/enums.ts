@@ -35,3 +35,11 @@ export const Gender = {
 } as const
 
 export type Gender = (typeof Gender)[keyof typeof Gender]
+
+
+export const AuthProvider = {
+  GOOGLE: 'GOOGLE',
+  CREDENTIALS: 'CREDENTIALS'
+} as const
+
+export type AuthProvider = (typeof AuthProvider)[keyof typeof AuthProvider]
