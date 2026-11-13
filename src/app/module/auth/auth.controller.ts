@@ -4,10 +4,25 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import type { IRequestUser } from "./auth.interface";
 import { AuthService } from "./auth.service";
+import { z } from "zod";
+
+const PatientRegistrationZodSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters long").regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"),
+  patient: z
+    .object({
+      contactNumber: z.string().optional(),
+    })
+    .optional(),
+});
 
 const registerPatient = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
-  const result = await AuthService.registerPatient(payload);
+  const payload = PatientRegistrationZodSchema.safeParse(req.body);
+  if (!payload.success) {
+    throw new Error(payload.error.message);
+  } 
+  const result = await AuthService.registerPatient(payload.data);
 
   const { accessToken, refreshToken, user, patient } = result;
 
@@ -120,17 +135,17 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
   const { accessToken, refreshToken, user } = result;
 
   res.cookie("accessToken", accessToken, {
-	httpOnly: true,
-	secure: false,	
-	sameSite: "none",
-	maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
+    httpOnly: true,
+    secure: false,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
   });
   res.cookie("refreshToken", refreshToken, {
-	httpOnly: true,
-	secure: false,
-	sameSite: "none",
-	maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  });	
+    httpOnly: true,
+    secure: false,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -138,8 +153,8 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
     message: "Google login successful",
     data: {
       accessToken,
-	  refreshToken,
-	  user,
+      refreshToken,
+      user,
     },
   });
 });
